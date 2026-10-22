@@ -12,24 +12,31 @@ import kotlinx.coroutines.flow.asStateFlow
 enum class PromptKind(val title: String, val variables: List<String>) {
     POST(
         "Новый пост персонажа",
-        COMMON + CHARACTER + listOf("recent_posts"),
+        PromptVars.COMMON + PromptVars.CHARACTER + listOf("recent_posts"),
     ),
     REPLIES(
         "Комментарии NPC к посту",
-        COMMON + listOf("post_author", "post_author_handle", "post_text", "existing_replies", "count"),
+        PromptVars.COMMON + listOf("post_author", "post_author_handle", "post_text", "existing_replies", "count"),
     ),
     CHAT(
         "Ответ персонажа в личке",
-        COMMON + CHARACTER + listOf("player_name", "summary"),
+        PromptVars.COMMON + PromptVars.CHARACTER + listOf("player_name", "summary"),
     ),
     SUMMARY(
         "Сжатие старой переписки",
-        COMMON + CHARACTER + listOf("player_name", "summary", "dialog"),
+        PromptVars.COMMON + PromptVars.CHARACTER + listOf("player_name", "summary", "dialog"),
     ),
 }
 
-private val COMMON get() = listOf("world", "scenario", "day", "hour")
-private val CHARACTER get() = listOf("name", "handle", "bio", "personality", "goal")
+/**
+ * Отдельный object, а не top-level val: иначе конструктор PromptKind запускал бы
+ * инициализацию класса файла, где DEFAULTS ссылается на ещё не созданные PromptKind.POST и т.д.
+ * (получались null-ключи и падение при старте).
+ */
+private object PromptVars {
+    val COMMON = listOf("world", "scenario", "day", "hour")
+    val CHARACTER = listOf("name", "handle", "bio", "personality", "goal")
+}
 
 data class PromptTemplate(val system: String, val user: String)
 
